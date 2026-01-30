@@ -1,15 +1,21 @@
 const versionEl = document.getElementById("version");
 const errorEl = document.getElementById("error");
 const routesEl = document.getElementById("routes");
+const groupFilterEl = document.getElementById("groupFilter");
 
+const groupInput = document.getElementById("group");
 const pathInput = document.getElementById("path");
 const methodsInput = document.getElementById("methods");
 const targetInput = document.getElementById("target");
 const stripPrefixInput = document.getElementById("stripPrefix");
 const rewriteInput = document.getElementById("rewrite");
+const authTypeInput = document.getElementById("authType");
+const apiKeyInput = document.getElementById("apiKey");
+const rateLimitInput = document.getElementById("rateLimitQps");
 
 document.getElementById("refresh").addEventListener("click", load);
 document.getElementById("create").addEventListener("click", createRoute);
+groupFilterEl.addEventListener("input", load);
 
 async function load() {
   clearError();
@@ -28,18 +34,26 @@ async function createRoute() {
     await fetchJson("/admin/routes", {
       method: "POST",
       body: JSON.stringify({
+        group: groupInput.value || null,
         path: pathInput.value,
         methods: methodsInput.value.split(",").map((item) => item.trim()).filter(Boolean),
         target: targetInput.value,
         stripPrefix: Number(stripPrefixInput.value || 0),
-        rewrite: rewriteInput.value || null
+        rewrite: rewriteInput.value || null,
+        authType: authTypeInput.value || null,
+        apiKey: apiKeyInput.value || null,
+        rateLimitQps: Number(rateLimitInput.value || 0)
       })
     });
+    groupInput.value = "";
     pathInput.value = "";
     targetInput.value = "";
     rewriteInput.value = "";
     methodsInput.value = "GET";
     stripPrefixInput.value = "0";
+    authTypeInput.value = "";
+    apiKeyInput.value = "";
+    rateLimitInput.value = "0";
     await load();
   } catch (error) {
     showError(error.message || "保存失败");
@@ -72,13 +86,20 @@ async function removeRoute(route) {
 
 function renderRoutes(routes) {
   routesEl.innerHTML = "";
-  routes.forEach((route) => {
+  const filter = (groupFilterEl.value || "").trim().toLowerCase();
+  routes
+    .filter((route) => !filter || (route.group || "").toLowerCase().includes(filter))
+    .forEach((route) => {
     const row = document.createElement("div");
     row.className = "row";
+    const authLabel = route.authType ? `${route.authType}${route.apiKey ? "(已配置)" : ""}` : "none";
+    const rateLabel = route.rateLimitQps ? `${route.rateLimitQps}/s` : "不限流";
     row.innerHTML = `
       <span>${route.path}</span>
+      <span>${route.group || "-"}</span>
       <span>${(route.methods || ["ALL"]).join(", ")}</span>
       <span>${route.target}</span>
+      <span>${authLabel} · ${rateLabel}</span>
       <span class="actions"></span>
     `;
     const actions = row.querySelector(".actions");

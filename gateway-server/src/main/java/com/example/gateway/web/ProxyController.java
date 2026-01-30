@@ -27,6 +27,7 @@ public class ProxyController {
     private final WebClient webClient;
     private final RuleService ruleService;
     private final RouteMatcher matcher;
+    private final RateLimiter rateLimiter = new RateLimiter();
 
     public ProxyController(WebClient webClient, RuleService ruleService, RouteMatcher matcher) {
         this.webClient = webClient;
@@ -49,6 +50,15 @@ public class ProxyController {
         RouteRule route = matchRoute(path, method);
         if (route == null) {
             return writeJson(exchange.getResponse(), HttpStatus.NOT_FOUND, "{\"error\":\"未匹配到路由规则\"}");
+        }
+        String authError = validateAuth(route, exchange.getRequest());
+        if (authError != null) {
+            return writeJson(exchange.getResponse(), HttpStatus.UNAUTHORIZED,
+                    "{\"error\":\"" + authError + "\"}");
+        }
+        if (!rateLimiter.tryAcquire(route)) {
+            return writeJson(exchange.getResponse(), HttpStatus.TOO_MANY_REQUESTS,
+                    "{\"error\":\"触发限流\"}");
         }
 
         String forwardPath = applyRewrite(route, path);
@@ -127,5 +137,53 @@ public class ProxyController {
         response.setStatusCode(status);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
         return response.writeWith(Mono.just(response.bufferFactory().wrap(body.getBytes())));
+    }
+
+    private String validateAuth(RouteRule route, ServerHttpRequest request) {
+        if (!StringUtils.hasText(route.getAuthType())) {
+            return null;
+        }
+        if ("apiKey".equalsIgnoreCase(route.getAuthType())) {
+            String apiKey = request.getHeaders().getFirst("X-API-Key");
+            if (!StringUtils.hasText(apiKey) || !apiKey.equals(route.getApiKey())) {
+                return "API Key 无效";
+            }
+        }
+        return null;
+    }
+
+    private static final class RateLimiter {
+        private final java.util.concurrent.ConcurrentHashMap<String, WindowCounter> counters =
+                new java.util.concurrent.ConcurrentHashMap<>();
+
+        boolean tryAcquire(RouteRule route) {
+            Integer limit = route.getRateLimitQps();
+            if (limit == null || limit <= 0) {
+                return true;
+            }
+            String key = route.getId();
+            long now = System.currentTimeMillis() / 1000;
+            WindowCounter counter = counters.computeIfAbsent(key, k -> new WindowCounter(now));
+            return counter.incrementAndCheck(now, limit);
+        }
+    }
+
+    private static final class WindowCounter {
+        private long windowSecond;
+        private int count;
+
+        private WindowCounter(long windowSecond) {
+            this.windowSecond = windowSecond;
+            this.count = 0;
+        }
+
+        synchronized boolean incrementAndCheck(long currentSecond, int limit) {
+            if (currentSecond != windowSecond) {
+                windowSecond = currentSecond;
+                count = 0;
+            }
+            count++;
+            return count <= limit;
+        }
     }
 }

@@ -38,6 +38,10 @@ public class RuleService {
         created.setTarget(route.getTarget());
         created.setStripPrefix(route.getStripPrefix());
         created.setRewrite(route.getRewrite());
+        created.setGroup(route.getGroup());
+        created.setAuthType(route.getAuthType());
+        created.setApiKey(route.getApiKey());
+        created.setRateLimitQps(route.getRateLimitQps());
 
         RuleSnapshot current = snapshotRef.get();
         List<RouteRule> updated = new java.util.ArrayList<>(current.getRoutes());
@@ -62,6 +66,10 @@ public class RuleService {
                 merged.setTarget(Optional.ofNullable(patch.getTarget()).orElse(route.getTarget()));
                 merged.setStripPrefix(Optional.ofNullable(patch.getStripPrefix()).orElse(route.getStripPrefix()));
                 merged.setRewrite(Optional.ofNullable(patch.getRewrite()).orElse(route.getRewrite()));
+                merged.setGroup(Optional.ofNullable(patch.getGroup()).orElse(route.getGroup()));
+                merged.setAuthType(Optional.ofNullable(patch.getAuthType()).orElse(route.getAuthType()));
+                merged.setApiKey(Optional.ofNullable(patch.getApiKey()).orElse(route.getApiKey()));
+                merged.setRateLimitQps(Optional.ofNullable(patch.getRateLimitQps()).orElse(route.getRateLimitQps()));
                 updatedRule = merged;
                 updated.add(merged);
             } else {

@@ -22,6 +22,16 @@ header {
   margin-bottom: 24px;
 }
 
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.header-actions input {
+  min-width: 200px;
+}
+
 header h1 {
   margin: 0 0 8px;
   font-size: 28px;
@@ -70,6 +80,13 @@ input {
   border: 1px solid #cbd5f5;
 }
 
+select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #cbd5f5;
+  background: white;
+}
+
 .error {
   background: #fee2e2;
   color: #b91c1c;
@@ -89,7 +106,7 @@ input {
 
 .row {
   display: grid;
-  grid-template-columns: 2fr 1fr 2fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 2fr 1.2fr 1fr;
   gap: 12px;
   align-items: center;
   padding: 12px;

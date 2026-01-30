@@ -9,6 +9,10 @@ public class RouteRule {
     private String target;
     private Integer stripPrefix;
     private String rewrite;
+    private String group;
+    private String authType;
+    private String apiKey;
+    private Integer rateLimitQps;
 
     public String getId() {
         return id;
@@ -56,5 +60,37 @@ public class RouteRule {
 
     public void setRewrite(String rewrite) {
         this.rewrite = rewrite;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public String getAuthType() {
+        return authType;
+    }
+
+    public void setAuthType(String authType) {
+        this.authType = authType;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    public Integer getRateLimitQps() {
+        return rateLimitQps;
+    }
+
+    public void setRateLimitQps(Integer rateLimitQps) {
+        this.rateLimitQps = rateLimitQps;
     }
 }

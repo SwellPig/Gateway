@@ -12,6 +12,7 @@
 - **路由转发**：按 path + method 匹配规则转发请求
 - **规则热生效**：更新规则后无需重启，自动刷新内存规则
 - **管理台**：规则列表、创建、删除、更新
+- **鉴权/限流（基础版）**：支持 API Key 校验与简单 QPS 限流
 - **可扩展设计**：以“规则快照”作为配置载体，便于接入配置中心
 
 ## 项目结构
@@ -49,15 +50,37 @@ mvn spring-boot:run
   "routes": [
     {
       "id": "sample-account",
+      "group": "account",
       "path": "/api/account/**",
       "methods": ["GET"],
       "target": "http://localhost:9001",
       "stripPrefix": 1,
-      "rewrite": "/v1/account/$1"
+      "rewrite": "/mock/account/$1",
+      "authType": "apiKey",
+      "apiKey": "demo-key",
+      "rateLimitQps": 5
     }
   ]
 }
 ```
+
+## 本地测试（无需后端）
+
+项目内置一个 Mock 后端（9001 端口），启动网关后可直接测试转发：
+
+```bash
+curl -H "X-API-Key: demo-key" http://localhost:8080/api/account/1001
+```
+
+限流测试（默认 5 QPS）：
+
+```bash
+for i in {1..10}; do curl -s -H "X-API-Key: demo-key" http://localhost:8080/api/account/1001; done
+```
+
+## Maven 镜像说明
+
+若本地 Maven 无法访问 Central，可在 `~/.m2/settings.xml` 配置镜像（示例使用阿里云 Central 镜像）。
 
 ## 管理 API
 
