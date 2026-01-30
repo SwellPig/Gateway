@@ -60,6 +60,12 @@ button {
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
+.muted {
+  color: #6b7280;
+  margin-top: -4px;
+  margin-bottom: 16px;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -127,4 +133,13 @@ select {
 
 .actions button:last-child {
   background: #ef4444;
+}
+
+.code-block {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 12px;
+  border-radius: 10px;
+  min-height: 80px;
+  white-space: pre-wrap;
 }

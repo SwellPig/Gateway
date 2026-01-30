@@ -2,6 +2,10 @@ const versionEl = document.getElementById("version");
 const errorEl = document.getElementById("error");
 const routesEl = document.getElementById("routes");
 const groupFilterEl = document.getElementById("groupFilter");
+const keywordFilterEl = document.getElementById("keywordFilter");
+const testPathEl = document.getElementById("testPath");
+const testApiKeyEl = document.getElementById("testApiKey");
+const testResultEl = document.getElementById("testResult");
 
 const groupInput = document.getElementById("group");
 const pathInput = document.getElementById("path");
@@ -16,6 +20,8 @@ const rateLimitInput = document.getElementById("rateLimitQps");
 document.getElementById("refresh").addEventListener("click", load);
 document.getElementById("create").addEventListener("click", createRoute);
 groupFilterEl.addEventListener("input", load);
+keywordFilterEl.addEventListener("input", load);
+document.getElementById("testRequest").addEventListener("click", sendTestRequest);
 
 async function load() {
   clearError();
@@ -87,8 +93,10 @@ async function removeRoute(route) {
 function renderRoutes(routes) {
   routesEl.innerHTML = "";
   const filter = (groupFilterEl.value || "").trim().toLowerCase();
+  const keyword = (keywordFilterEl.value || "").trim().toLowerCase();
   routes
     .filter((route) => !filter || (route.group || "").toLowerCase().includes(filter))
+    .filter((route) => !keyword || (route.path || "").toLowerCase().includes(keyword))
     .forEach((route) => {
     const row = document.createElement("div");
     row.className = "row";
@@ -103,13 +111,16 @@ function renderRoutes(routes) {
       <span class="actions"></span>
     `;
     const actions = row.querySelector(".actions");
+    const test = document.createElement("button");
+    test.textContent = "测试";
+    test.addEventListener("click", () => prefillTest(route));
     const toggle = document.createElement("button");
     toggle.textContent = "切换 Method";
     toggle.addEventListener("click", () => toggleMethod(route));
     const remove = document.createElement("button");
     remove.textContent = "删除";
     remove.addEventListener("click", () => removeRoute(route));
-    actions.append(toggle, remove);
+    actions.append(test, toggle, remove);
     routesEl.appendChild(row);
   });
 }
@@ -140,3 +151,33 @@ async function fetchJson(url, options = {}) {
 }
 
 load();
+
+function prefillTest(route) {
+  let samplePath = route.path || "/api/account/1001";
+  if (samplePath.includes("**")) {
+    samplePath = samplePath.replace("**", "1001");
+  }
+  if (samplePath.includes("*")) {
+    samplePath = samplePath.replace("*", "1001");
+  }
+  samplePath = samplePath.replaceAll("{id}", "1001");
+  testPathEl.value = samplePath.startsWith("/") ? samplePath : `/${samplePath}`;
+  testApiKeyEl.value = route.apiKey || testApiKeyEl.value;
+  testResultEl.textContent = "已填充测试路径，可点击发送测试请求";
+}
+
+async function sendTestRequest() {
+  clearError();
+  testResultEl.textContent = "请求中...";
+  try {
+    const res = await fetch(testPathEl.value, {
+      headers: {
+        "X-API-Key": testApiKeyEl.value
+      }
+    });
+    const text = await res.text();
+    testResultEl.textContent = `Status: ${res.status}\n${text}`;
+  } catch (error) {
+    testResultEl.textContent = error.message || "请求失败";
+  }
+}

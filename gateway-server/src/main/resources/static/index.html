@@ -15,6 +15,7 @@
         </div>
         <div class="header-actions">
           <input id="groupFilter" placeholder="按分组筛选（可选）" />
+          <input id="keywordFilter" placeholder="按路径关键字筛选" />
           <button id="refresh">刷新规则</button>
         </div>
       </header>
@@ -80,6 +81,23 @@
           </div>
           <div id="routes"></div>
         </div>
+      </section>
+
+      <section class="card">
+        <h2>转发测试</h2>
+        <p class="muted">支持 GET 请求的本地快速验证，默认走 /api/account/1001。</p>
+        <div class="form-grid">
+          <label>
+            测试路径
+            <input id="testPath" value="/api/account/1001" />
+          </label>
+          <label>
+            API Key
+            <input id="testApiKey" value="demo-key" />
+          </label>
+        </div>
+        <button id="testRequest">发送测试请求</button>
+        <pre id="testResult" class="code-block"></pre>
       </section>
     </div>
     <script src="/app.js"></script>

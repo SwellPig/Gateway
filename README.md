@@ -78,6 +78,8 @@ curl -H "X-API-Key: demo-key" http://localhost:8080/api/account/1001
 for i in {1..10}; do curl -s -H "X-API-Key: demo-key" http://localhost:8080/api/account/1001; done
 ```
 
+管理台内置“转发测试”面板，可直接输入路径与 API Key 发起请求。
+
 ## Maven 镜像说明
 
 若本地 Maven 无法访问 Central，可在 `~/.m2/settings.xml` 配置镜像（示例使用阿里云 Central 镜像）。
