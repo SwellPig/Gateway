@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>开放银行网关管理台</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <div>
+          <h1>开放银行网关管理台</h1>
+          <p id="version">版本：加载中...</p>
+        </div>
+        <button id="refresh">刷新规则</button>
+      </header>
+
+      <div id="error" class="error hidden"></div>
+
+      <section class="card">
+        <h2>新增路由规则</h2>
+        <div class="form-grid">
+          <label>
+            Path
+            <input id="path" placeholder="/api/account/**" />
+          </label>
+          <label>
+            Method
+            <input id="methods" value="GET" placeholder="GET,POST" />
+          </label>
+          <label>
+            Target
+            <input id="target" placeholder="http://localhost:9001" />
+          </label>
+          <label>
+            StripPrefix
+            <input id="stripPrefix" value="0" />
+          </label>
+          <label>
+            Rewrite
+            <input id="rewrite" placeholder="/v1/account/$1" />
+          </label>
+        </div>
+        <button id="create">保存并发布</button>
+      </section>
+
+      <section class="card">
+        <h2>规则列表</h2>
+        <div class="table">
+          <div class="row header">
+            <span>路径</span>
+            <span>方法</span>
+            <span>目标</span>
+            <span>操作</span>
+          </div>
+          <div id="routes"></div>
+        </div>
+      </section>
+    </div>
+    <script src="/app.js"></script>
+  </body>
+</html>
