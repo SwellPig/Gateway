@@ -26,7 +26,7 @@ public class StaticController {
     @GetMapping("/styles.css")
     public ResponseEntity<Resource> styles() {
         return ResponseEntity.ok()
-                .contentType(MediaType.TEXT_CSS)
+                .contentType(MediaType.valueOf("text/css"))
                 .body(new ClassPathResource("static/styles.css"));
     }
 }

@@ -43,7 +43,10 @@ public class ProxyController {
             return exchange.getResponse().setComplete();
         }
 
-        RouteRule route = matchRoute(path, exchange.getRequest().getMethodValue());
+        String method = exchange.getRequest().getMethod() != null
+                ? exchange.getRequest().getMethod().name()
+                : "GET";
+        RouteRule route = matchRoute(path, method);
         if (route == null) {
             return writeJson(exchange.getResponse(), HttpStatus.NOT_FOUND, "{\"error\":\"未匹配到路由规则\"}");
         }
