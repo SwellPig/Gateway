@@ -61,9 +61,19 @@ public class ProxyController {
                     "{\"error\":\"触发限流\"}");
         }
 
-        String forwardPath = applyRewrite(route, path);
-        URI target = buildTargetUri(route.getTarget(), forwardPath, exchange.getRequest().getURI().getRawQuery());
         ServerHttpRequest request = exchange.getRequest();
+        if (request.getMethod() == null) {
+            return writeJson(exchange.getResponse(), HttpStatus.BAD_REQUEST, "{\"error\":\"未知请求方法\"}");
+        }
+
+        String forwardPath = applyRewrite(route, path);
+        URI target;
+        try {
+            target = buildTargetUri(route.getTarget(), forwardPath, exchange.getRequest().getURI().getRawQuery());
+        } catch (IllegalArgumentException ex) {
+            return writeJson(exchange.getResponse(), HttpStatus.BAD_REQUEST,
+                    "{\"error\":\"目标地址非法\",\"detail\":\"" + ex.getMessage() + "\"}");
+        }
 
         return webClient.method(request.getMethod())
                 .uri(target)
@@ -101,8 +111,12 @@ public class ProxyController {
 
     private String applyRewrite(RouteRule route, String path) {
         if (StringUtils.hasText(route.getRewrite())) {
-            String regex = matcher.toRegex(route.getPath());
-            return path.replaceAll("^" + regex + "$", route.getRewrite());
+            String rewrite = route.getRewrite();
+            if (rewrite.contains("$1")) {
+                String remainder = matcher.extractPath(route.getPath(), path);
+                return rewrite.replace("$1", remainder);
+            }
+            return rewrite;
         }
         if (route.getStripPrefix() != null && route.getStripPrefix() > 0) {
             String[] parts = StringUtils.tokenizeToStringArray(path, "/");

@@ -11,9 +11,7 @@ public class RouteMatcher {
         return matcher.match(pattern, path);
     }
 
-    public String toRegex(String pattern) {
-        String escaped = pattern.replaceAll("([.+?^${}()|\\[\\]\\\\])", "\\\\$1");
-        String withDoubleStar = escaped.replace("\\*\\*", "(.*)");
-        return withDoubleStar.replace("\\*", "([^/]+)");
+    public String extractPath(String pattern, String path) {
+        return matcher.extractPathWithinPattern(pattern, path);
     }
 }
