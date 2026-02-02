@@ -111,6 +111,29 @@ public class RuleService {
         return true;
     }
 
+    public RuleSnapshot replaceSnapshot(RuleSnapshot snapshot) throws IOException {
+        String now = Instant.now().toString();
+        if (snapshot.getVersion() == null || snapshot.getVersion().isBlank()) {
+            snapshot.setVersion(now);
+        }
+        if (snapshot.getRoutes() != null) {
+            for (RouteRule route : snapshot.getRoutes()) {
+                if (route.getId() == null || route.getId().isBlank()) {
+                    route.setId(UUID.randomUUID().toString());
+                }
+                if (route.getEnabled() == null) {
+                    route.setEnabled(Boolean.TRUE);
+                }
+                if (route.getCreatedAt() == null || route.getCreatedAt().isBlank()) {
+                    route.setCreatedAt(now);
+                }
+                route.setUpdatedAt(now);
+            }
+        }
+        saveSnapshot(snapshot);
+        return snapshot;
+    }
+
     @Scheduled(fixedDelay = 1000)
     public void reloadIfChanged() {
         try {

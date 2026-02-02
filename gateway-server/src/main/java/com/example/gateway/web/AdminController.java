@@ -56,6 +56,17 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("success", true));
     }
 
+    @PostMapping("/import")
+    public ResponseEntity<?> importSnapshot(@RequestBody RuleSnapshot snapshot) throws IOException {
+        RuleSnapshot updated = ruleService.replaceSnapshot(snapshot);
+        return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<?> exportSnapshot() {
+        return ResponseEntity.ok(ruleService.getSnapshot());
+    }
+
     @GetMapping("/metrics")
     public ResponseEntity<?> metrics() {
         return ResponseEntity.ok(metricsService.snapshot());

@@ -8,6 +8,7 @@ const testApiKeyEl = document.getElementById("testApiKey");
 const testResultEl = document.getElementById("testResult");
 const metricsEl = document.getElementById("metrics");
 const summaryEl = document.getElementById("summary");
+const snapshotInputEl = document.getElementById("snapshotInput");
 
 const groupInput = document.getElementById("group");
 const pathInput = document.getElementById("path");
@@ -23,6 +24,8 @@ const enabledInput = document.getElementById("enabled");
 
 document.getElementById("refresh").addEventListener("click", load);
 document.getElementById("create").addEventListener("click", createRoute);
+document.getElementById("exportSnapshot").addEventListener("click", exportSnapshot);
+document.getElementById("importSnapshot").addEventListener("click", importSnapshot);
 groupFilterEl.addEventListener("input", load);
 keywordFilterEl.addEventListener("input", load);
 document.getElementById("testRequest").addEventListener("click", sendTestRequest);
@@ -224,6 +227,30 @@ async function fetchJson(url, options = {}) {
 }
 
 load();
+
+async function exportSnapshot() {
+  clearError();
+  try {
+    const snapshot = await fetchJson("/admin/routes/export");
+    snapshotInputEl.value = JSON.stringify(snapshot, null, 2);
+  } catch (error) {
+    showError(error.message || "导出失败");
+  }
+}
+
+async function importSnapshot() {
+  clearError();
+  try {
+    const payload = JSON.parse(snapshotInputEl.value || "{}");
+    await fetchJson("/admin/routes/import", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+    await load();
+  } catch (error) {
+    showError(error.message || "导入失败");
+  }
+}
 
 function prefillTest(route) {
   let samplePath = route.path || "/api/account/1001";

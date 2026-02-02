@@ -15,6 +15,7 @@
 - **鉴权/限流（基础版）**：支持 API Key 校验与简单 QPS 限流
 - **可用性控制**：支持规则启用/禁用、上游超时控制
 - **运行统计**：管理台展示规则命中统计与概览
+- **批量管理**：支持规则导入/导出
 - **可扩展设计**：以“规则快照”作为配置载体，便于接入配置中心
 
 ## 项目结构
@@ -102,6 +103,8 @@ for i in {1..10}; do curl -s -H "X-API-Key: demo-key" http://localhost:8080/api/
 | DELETE | `/admin/routes/:id` | 删除规则 |
 | GET | `/admin/routes/metrics` | 查看规则命中统计 |
 | GET | `/admin/routes/summary` | 查看规则概览 |
+| GET | `/admin/routes/export` | 导出规则快照 |
+| POST | `/admin/routes/import` | 导入规则快照 |
 
 ## 下一步计划
 

@@ -8,10 +8,17 @@
   </head>
   <body>
     <div class="page">
-      <header>
-        <div>
-          <h1>开放银行网关管理台</h1>
-          <p id="version">版本：加载中...</p>
+      <header class="hero">
+        <div class="hero-left">
+          <div class="hero-title">
+            <h1>开放银行网关管理台</h1>
+            <div class="badges">
+              <span class="badge">热生效</span>
+              <span class="badge">API Key</span>
+              <span class="badge">限流</span>
+            </div>
+          </div>
+          <p id="version" class="muted">版本：加载中...</p>
         </div>
         <div class="header-actions">
           <input id="groupFilter" placeholder="按分组筛选（可选）" />
@@ -25,6 +32,21 @@
       <section class="card">
         <h2>规则概览</h2>
         <div id="summary" class="summary-grid"></div>
+      </section>
+
+      <section class="card">
+        <h2>规则导入导出</h2>
+        <p class="muted">用于批量维护规则快照（JSON）。导入会覆盖现有规则。</p>
+        <div class="form-grid">
+          <label>
+            快照内容
+            <textarea id="snapshotInput" rows="6" placeholder="粘贴 rules.json 内容"></textarea>
+          </label>
+        </div>
+        <div class="actions-inline">
+          <button id="exportSnapshot">导出到输入框</button>
+          <button id="importSnapshot" class="btn-warning">导入并覆盖</button>
+        </div>
       </section>
 
       <section class="card">

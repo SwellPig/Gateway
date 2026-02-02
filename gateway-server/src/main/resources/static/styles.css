@@ -5,7 +5,7 @@
 body {
   margin: 0;
   font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: #f5f7fb;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
   color: #1f2937;
 }
 
@@ -15,11 +15,42 @@ body {
   padding: 32px 24px 80px;
 }
 
-header {
+.hero {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, #1d4ed8 0%, #4f46e5 100%);
+  border-radius: 16px;
+  color: white;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.2);
+}
+
+.hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hero-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: #f8fafc;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
 }
 
 .header-actions {
@@ -32,14 +63,14 @@ header {
   min-width: 200px;
 }
 
-header h1 {
+.hero h1 {
   margin: 0 0 8px;
   font-size: 28px;
 }
 
-header p {
+.hero p {
   margin: 0;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 button {
@@ -50,6 +81,13 @@ button {
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(37, 99, 235, 0.35);
 }
 
 .card {
@@ -58,6 +96,7 @@ button {
   padding: 20px;
   margin-bottom: 24px;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e5e7eb;
 }
 
 .summary-grid {
@@ -67,7 +106,7 @@ button {
 }
 
 .summary-card {
-  background: #f8fafc;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
   border-radius: 12px;
   padding: 16px;
   display: flex;
@@ -116,6 +155,7 @@ input {
   padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid #cbd5f5;
+  background: #fff;
 }
 
 select {
@@ -123,6 +163,15 @@ select {
   border-radius: 8px;
   border: 1px solid #cbd5f5;
   background: white;
+}
+
+textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #cbd5f5;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  resize: vertical;
 }
 
 .error {
@@ -148,8 +197,9 @@ select {
   gap: 12px;
   align-items: center;
   padding: 12px;
-  background: #f8fafc;
+  background: #f9fafb;
   border-radius: 10px;
+  border: 1px solid #eef2f7;
 }
 
 .row small {
@@ -166,6 +216,11 @@ select {
 .actions {
   display: flex;
   gap: 8px;
+}
+
+.actions-inline {
+  display: flex;
+  gap: 12px;
 }
 
 .actions button:last-child {
