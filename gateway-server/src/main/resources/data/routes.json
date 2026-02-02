@@ -1,0 +1,21 @@
+{
+  "version": "2025-01-01T12:00:00Z",
+  "routes": [
+    {
+      "id": "sample-account",
+      "group": "account",
+      "path": "/api/account/**",
+      "methods": ["GET"],
+      "target": "http://localhost:9001",
+      "stripPrefix": 1,
+      "rewrite": "/mock/account/$1",
+      "authType": "apiKey",
+      "apiKey": "demo-key",
+      "rateLimitQps": 5,
+      "enabled": true,
+      "timeoutMs": 3000,
+      "createdAt": "2025-01-01T12:00:00Z",
+      "updatedAt": "2025-01-01T12:00:00Z"
+    }
+  ]
+}
