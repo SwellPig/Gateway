@@ -93,7 +93,7 @@ public class ProxyController {
                     return response.writeWith(clientResponse.bodyToFlux(DataBuffer.class)
                             .timeout(java.time.Duration.ofMillis(resolveTimeout(route))));
                 })
-                .onErrorResume(reactor.core.Exceptions::isTimeout, error ->
+                .onErrorResume(java.util.concurrent.TimeoutException.class, error ->
                         writeJson(exchange.getResponse(), HttpStatus.GATEWAY_TIMEOUT,
                                 "{\"error\":\"上游超时\"}"))
                 .onErrorResume(error ->
