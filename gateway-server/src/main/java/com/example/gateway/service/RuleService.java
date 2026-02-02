@@ -32,6 +32,7 @@ public class RuleService {
 
     public RouteRule addRoute(RouteRule route) throws IOException {
         RouteRule created = new RouteRule();
+        String now = Instant.now().toString();
         created.setId(Optional.ofNullable(route.getId()).orElse(UUID.randomUUID().toString()));
         created.setPath(route.getPath());
         created.setMethods(route.getMethods());
@@ -44,6 +45,8 @@ public class RuleService {
         created.setRateLimitQps(route.getRateLimitQps());
         created.setEnabled(route.getEnabled() == null ? Boolean.TRUE : route.getEnabled());
         created.setTimeoutMs(route.getTimeoutMs());
+        created.setCreatedAt(now);
+        created.setUpdatedAt(now);
 
         RuleSnapshot current = snapshotRef.get();
         List<RouteRule> updated = new java.util.ArrayList<>(current.getRoutes());
@@ -61,6 +64,7 @@ public class RuleService {
         RouteRule updatedRule = null;
         for (RouteRule route : current.getRoutes()) {
             if (route.getId().equals(id)) {
+                String now = Instant.now().toString();
                 RouteRule merged = new RouteRule();
                 merged.setId(id);
                 merged.setPath(Optional.ofNullable(patch.getPath()).orElse(route.getPath()));
@@ -74,6 +78,8 @@ public class RuleService {
                 merged.setRateLimitQps(Optional.ofNullable(patch.getRateLimitQps()).orElse(route.getRateLimitQps()));
                 merged.setEnabled(Optional.ofNullable(patch.getEnabled()).orElse(route.getEnabled()));
                 merged.setTimeoutMs(Optional.ofNullable(patch.getTimeoutMs()).orElse(route.getTimeoutMs()));
+                merged.setCreatedAt(route.getCreatedAt());
+                merged.setUpdatedAt(now);
                 updatedRule = merged;
                 updated.add(merged);
             } else {

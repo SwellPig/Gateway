@@ -60,4 +60,27 @@ public class AdminController {
     public ResponseEntity<?> metrics() {
         return ResponseEntity.ok(metricsService.snapshot());
     }
+
+    @GetMapping("/summary")
+    public ResponseEntity<?> summary() {
+        RuleSnapshot snapshot = ruleService.getSnapshot();
+        long total = snapshot.getRoutes().size();
+        long enabled = snapshot.getRoutes().stream()
+                .filter(route -> route.getEnabled() == null || route.getEnabled())
+                .count();
+        long disabled = total - enabled;
+        long withAuth = snapshot.getRoutes().stream()
+                .filter(route -> route.getAuthType() != null && !route.getAuthType().isBlank())
+                .count();
+        long limited = snapshot.getRoutes().stream()
+                .filter(route -> route.getRateLimitQps() != null && route.getRateLimitQps() > 0)
+                .count();
+        return ResponseEntity.ok(Map.of(
+                "total", total,
+                "enabled", enabled,
+                "disabled", disabled,
+                "withAuth", withAuth,
+                "limited", limited
+        ));
+    }
 }

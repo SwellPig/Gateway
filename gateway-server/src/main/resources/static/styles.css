@@ -60,6 +60,32 @@ button {
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.summary-card {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-label {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.summary-value {
+  font-size: 22px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
 .muted {
   color: #6b7280;
   margin-top: -4px;
@@ -118,12 +144,17 @@ select {
 
 .row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 2fr 1.2fr 1.2fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 2fr 1.2fr 1.2fr 1.6fr;
   gap: 12px;
   align-items: center;
   padding: 12px;
   background: #f8fafc;
   border-radius: 10px;
+}
+
+.row small {
+  color: #94a3b8;
+  font-size: 12px;
 }
 
 .row.header {
@@ -139,6 +170,14 @@ select {
 
 .actions button:last-child {
   background: #ef4444;
+}
+
+.btn-warning {
+  background: #f59e0b;
+}
+
+.btn-success {
+  background: #10b981;
 }
 
 .code-block {

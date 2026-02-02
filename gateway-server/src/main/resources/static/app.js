@@ -7,6 +7,7 @@ const testPathEl = document.getElementById("testPath");
 const testApiKeyEl = document.getElementById("testApiKey");
 const testResultEl = document.getElementById("testResult");
 const metricsEl = document.getElementById("metrics");
+const summaryEl = document.getElementById("summary");
 
 const groupInput = document.getElementById("group");
 const pathInput = document.getElementById("path");
@@ -32,6 +33,7 @@ async function load() {
     const snapshot = await fetchJson("/admin/routes");
     versionEl.textContent = `版本：${snapshot.version || "未发布"}`;
     renderRoutes(snapshot.routes || []);
+    await loadSummary();
     await loadMetrics();
   } catch (error) {
     showError(error.message || "加载失败");
@@ -110,13 +112,15 @@ function renderRoutes(routes) {
     row.className = "row";
     const authLabel = route.authType ? `${route.authType}${route.apiKey ? "(已配置)" : ""}` : "none";
     const rateLabel = route.rateLimitQps ? `${route.rateLimitQps}/s` : "不限流";
+    const createdAt = route.createdAt ? route.createdAt.replace("T", " ").replace("Z", "") : "-";
+    const updatedAt = route.updatedAt ? route.updatedAt.replace("T", " ").replace("Z", "") : "-";
     row.innerHTML = `
       <span>${route.path}</span>
       <span>${route.group || "-"}</span>
       <span>${(route.methods || ["ALL"]).join(", ")}</span>
       <span>${route.target}</span>
       <span>${authLabel} · ${rateLabel}</span>
-      <span>${route.enabled === false ? "禁用" : "启用"} · ${route.timeoutMs || 3000}ms</span>
+      <span>${route.enabled === false ? "禁用" : "启用"} · ${route.timeoutMs || 3000}ms<br /><small>${createdAt} / ${updatedAt}</small></span>
       <span class="actions"></span>
     `;
     const actions = row.querySelector(".actions");
@@ -125,6 +129,7 @@ function renderRoutes(routes) {
     test.addEventListener("click", () => prefillTest(route));
     const toggleEnabled = document.createElement("button");
     toggleEnabled.textContent = route.enabled === false ? "启用" : "禁用";
+    toggleEnabled.className = route.enabled === false ? "btn-success" : "btn-warning";
     toggleEnabled.addEventListener("click", () => toggleEnable(route));
     const toggle = document.createElement("button");
     toggle.textContent = "切换 Method";
@@ -154,6 +159,35 @@ async function loadMetrics() {
   } catch (error) {
     metricsEl.textContent = error.message || "无法加载统计";
   }
+}
+
+async function loadSummary() {
+  try {
+    const summary = await fetchJson("/admin/routes/summary");
+    renderSummary(summary);
+  } catch (error) {
+    summaryEl.textContent = error.message || "无法加载概览";
+  }
+}
+
+function renderSummary(summary) {
+  summaryEl.innerHTML = "";
+  const items = [
+    { label: "总规则", value: summary.total ?? 0 },
+    { label: "启用中", value: summary.enabled ?? 0 },
+    { label: "已禁用", value: summary.disabled ?? 0 },
+    { label: "带鉴权", value: summary.withAuth ?? 0 },
+    { label: "有频控", value: summary.limited ?? 0 }
+  ];
+  items.forEach((item) => {
+    const card = document.createElement("div");
+    card.className = "summary-card";
+    card.innerHTML = `
+      <span class="summary-label">${item.label}</span>
+      <span class="summary-value">${item.value}</span>
+    `;
+    summaryEl.appendChild(card);
+  });
 }
 
 function renderMetrics(metrics) {

@@ -14,6 +14,7 @@
 - **管理台**：规则列表、创建、删除、更新
 - **鉴权/限流（基础版）**：支持 API Key 校验与简单 QPS 限流
 - **可用性控制**：支持规则启用/禁用、上游超时控制
+- **运行统计**：管理台展示规则命中统计与概览
 - **可扩展设计**：以“规则快照”作为配置载体，便于接入配置中心
 
 ## 项目结构
@@ -61,7 +62,9 @@ mvn spring-boot:run
       "apiKey": "demo-key",
       "rateLimitQps": 5,
       "enabled": true,
-      "timeoutMs": 3000
+      "timeoutMs": 3000,
+      "createdAt": "2025-01-01T12:00:00Z",
+      "updatedAt": "2025-01-01T12:00:00Z"
     }
   ]
 }
@@ -83,6 +86,7 @@ for i in {1..10}; do curl -s -H "X-API-Key: demo-key" http://localhost:8080/api/
 
 管理台内置“转发测试”面板，可直接输入路径与 API Key 发起请求。
 规则列表支持启用/禁用开关与超时配置，并展示命中统计。
+规则概览卡片展示启用/禁用/限流/鉴权等汇总信息。
 
 ## Maven 镜像说明
 
@@ -97,6 +101,7 @@ for i in {1..10}; do curl -s -H "X-API-Key: demo-key" http://localhost:8080/api/
 | PUT | `/admin/routes/:id` | 更新规则 |
 | DELETE | `/admin/routes/:id` | 删除规则 |
 | GET | `/admin/routes/metrics` | 查看规则命中统计 |
+| GET | `/admin/routes/summary` | 查看规则概览 |
 
 ## 下一步计划
 

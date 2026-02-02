@@ -15,6 +15,8 @@ public class RouteRule {
     private Integer rateLimitQps;
     private Boolean enabled;
     private Integer timeoutMs;
+    private String createdAt;
+    private String updatedAt;
 
     public String getId() {
         return id;
@@ -110,5 +112,21 @@ public class RouteRule {
 
     public void setTimeoutMs(Integer timeoutMs) {
         this.timeoutMs = timeoutMs;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
