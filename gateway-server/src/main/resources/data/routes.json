@@ -11,7 +11,9 @@
       "rewrite": "/mock/account/$1",
       "authType": "apiKey",
       "apiKey": "demo-key",
-      "rateLimitQps": 5
+      "rateLimitQps": 5,
+      "enabled": true,
+      "timeoutMs": 3000
     }
   ]
 }

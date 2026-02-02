@@ -42,6 +42,8 @@ public class RuleService {
         created.setAuthType(route.getAuthType());
         created.setApiKey(route.getApiKey());
         created.setRateLimitQps(route.getRateLimitQps());
+        created.setEnabled(route.getEnabled() == null ? Boolean.TRUE : route.getEnabled());
+        created.setTimeoutMs(route.getTimeoutMs());
 
         RuleSnapshot current = snapshotRef.get();
         List<RouteRule> updated = new java.util.ArrayList<>(current.getRoutes());
@@ -70,6 +72,8 @@ public class RuleService {
                 merged.setAuthType(Optional.ofNullable(patch.getAuthType()).orElse(route.getAuthType()));
                 merged.setApiKey(Optional.ofNullable(patch.getApiKey()).orElse(route.getApiKey()));
                 merged.setRateLimitQps(Optional.ofNullable(patch.getRateLimitQps()).orElse(route.getRateLimitQps()));
+                merged.setEnabled(Optional.ofNullable(patch.getEnabled()).orElse(route.getEnabled()));
+                merged.setTimeoutMs(Optional.ofNullable(patch.getTimeoutMs()).orElse(route.getTimeoutMs()));
                 updatedRule = merged;
                 updated.add(merged);
             } else {

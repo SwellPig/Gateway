@@ -27,12 +27,15 @@ public class ProxyController {
     private final WebClient webClient;
     private final RuleService ruleService;
     private final RouteMatcher matcher;
+    private final com.example.gateway.service.RouteMetricsService metricsService;
     private final RateLimiter rateLimiter = new RateLimiter();
 
-    public ProxyController(WebClient webClient, RuleService ruleService, RouteMatcher matcher) {
+    public ProxyController(WebClient webClient, RuleService ruleService, RouteMatcher matcher,
+                           com.example.gateway.service.RouteMetricsService metricsService) {
         this.webClient = webClient;
         this.ruleService = ruleService;
         this.matcher = matcher;
+        this.metricsService = metricsService;
     }
 
     @RequestMapping("/**")
@@ -50,6 +53,9 @@ public class ProxyController {
         RouteRule route = matchRoute(path, method);
         if (route == null) {
             return writeJson(exchange.getResponse(), HttpStatus.NOT_FOUND, "{\"error\":\"未匹配到路由规则\"}");
+        }
+        if (route.getEnabled() != null && !route.getEnabled()) {
+            return writeJson(exchange.getResponse(), HttpStatus.SERVICE_UNAVAILABLE, "{\"error\":\"该规则已禁用\"}");
         }
         String authError = validateAuth(route, exchange.getRequest());
         if (authError != null) {
@@ -75,6 +81,7 @@ public class ProxyController {
                     "{\"error\":\"目标地址非法\",\"detail\":\"" + ex.getMessage() + "\"}");
         }
 
+        metricsService.recordHit(route.getId());
         return webClient.method(request.getMethod())
                 .uri(target)
                 .headers(headers -> copyHeaders(request.getHeaders(), headers))
@@ -83,8 +90,12 @@ public class ProxyController {
                     ServerHttpResponse response = exchange.getResponse();
                     response.setStatusCode(clientResponse.statusCode());
                     response.getHeaders().putAll(clientResponse.headers().asHttpHeaders());
-                    return response.writeWith(clientResponse.bodyToFlux(DataBuffer.class));
+                    return response.writeWith(clientResponse.bodyToFlux(DataBuffer.class)
+                            .timeout(java.time.Duration.ofMillis(resolveTimeout(route))));
                 })
+                .onErrorResume(reactor.core.Exceptions::isTimeout, error ->
+                        writeJson(exchange.getResponse(), HttpStatus.GATEWAY_TIMEOUT,
+                                "{\"error\":\"上游超时\"}"))
                 .onErrorResume(error ->
                         writeJson(exchange.getResponse(), HttpStatus.BAD_GATEWAY,
                                 "{\"error\":\"转发失败\",\"detail\":\"" + error.getMessage() + "\"}"));
@@ -151,6 +162,14 @@ public class ProxyController {
         response.setStatusCode(status);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
         return response.writeWith(Mono.just(response.bufferFactory().wrap(body.getBytes())));
+    }
+
+    private int resolveTimeout(RouteRule route) {
+        Integer timeoutMs = route.getTimeoutMs();
+        if (timeoutMs == null || timeoutMs <= 0) {
+            return 3000;
+        }
+        return timeoutMs;
     }
 
     private String validateAuth(RouteRule route, ServerHttpRequest request) {

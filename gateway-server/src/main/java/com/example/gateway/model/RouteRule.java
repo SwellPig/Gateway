@@ -13,6 +13,8 @@ public class RouteRule {
     private String authType;
     private String apiKey;
     private Integer rateLimitQps;
+    private Boolean enabled;
+    private Integer timeoutMs;
 
     public String getId() {
         return id;
@@ -92,5 +94,21 @@ public class RouteRule {
 
     public void setRateLimitQps(Integer rateLimitQps) {
         this.rateLimitQps = rateLimitQps;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Integer getTimeoutMs() {
+        return timeoutMs;
+    }
+
+    public void setTimeoutMs(Integer timeoutMs) {
+        this.timeoutMs = timeoutMs;
     }
 }

@@ -16,9 +16,11 @@ import java.util.Optional;
 @RequestMapping("/admin/routes")
 public class AdminController {
     private final RuleService ruleService;
+    private final com.example.gateway.service.RouteMetricsService metricsService;
 
-    public AdminController(RuleService ruleService) {
+    public AdminController(RuleService ruleService, com.example.gateway.service.RouteMetricsService metricsService) {
         this.ruleService = ruleService;
+        this.metricsService = metricsService;
     }
 
     @GetMapping
@@ -52,5 +54,10 @@ public class AdminController {
                     .body(Map.of("error", "未找到该规则"));
         }
         return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    @GetMapping("/metrics")
+    public ResponseEntity<?> metrics() {
+        return ResponseEntity.ok(metricsService.snapshot());
     }
 }

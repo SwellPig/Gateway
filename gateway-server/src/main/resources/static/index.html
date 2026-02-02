@@ -57,6 +57,14 @@
             <input id="rateLimitQps" value="0" />
           </label>
           <label>
+            Timeout(ms)
+            <input id="timeoutMs" value="3000" />
+          </label>
+          <label class="checkbox">
+            <input id="enabled" type="checkbox" checked />
+            启用规则
+          </label>
+          <label>
             StripPrefix
             <input id="stripPrefix" value="0" />
           </label>
@@ -77,10 +85,17 @@
             <span>方法</span>
             <span>目标</span>
             <span>策略</span>
+            <span>状态</span>
             <span>操作</span>
           </div>
           <div id="routes"></div>
         </div>
+      </section>
+
+      <section class="card">
+        <h2>规则命中统计</h2>
+        <p class="muted">展示网关运行期统计的命中次数与最近命中时间。</p>
+        <div id="metrics" class="metrics"></div>
       </section>
 
       <section class="card">

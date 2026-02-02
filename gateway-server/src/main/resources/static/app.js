@@ -6,6 +6,7 @@ const keywordFilterEl = document.getElementById("keywordFilter");
 const testPathEl = document.getElementById("testPath");
 const testApiKeyEl = document.getElementById("testApiKey");
 const testResultEl = document.getElementById("testResult");
+const metricsEl = document.getElementById("metrics");
 
 const groupInput = document.getElementById("group");
 const pathInput = document.getElementById("path");
@@ -16,6 +17,8 @@ const rewriteInput = document.getElementById("rewrite");
 const authTypeInput = document.getElementById("authType");
 const apiKeyInput = document.getElementById("apiKey");
 const rateLimitInput = document.getElementById("rateLimitQps");
+const timeoutInput = document.getElementById("timeoutMs");
+const enabledInput = document.getElementById("enabled");
 
 document.getElementById("refresh").addEventListener("click", load);
 document.getElementById("create").addEventListener("click", createRoute);
@@ -29,6 +32,7 @@ async function load() {
     const snapshot = await fetchJson("/admin/routes");
     versionEl.textContent = `版本：${snapshot.version || "未发布"}`;
     renderRoutes(snapshot.routes || []);
+    await loadMetrics();
   } catch (error) {
     showError(error.message || "加载失败");
   }
@@ -48,7 +52,9 @@ async function createRoute() {
         rewrite: rewriteInput.value || null,
         authType: authTypeInput.value || null,
         apiKey: apiKeyInput.value || null,
-        rateLimitQps: Number(rateLimitInput.value || 0)
+        rateLimitQps: Number(rateLimitInput.value || 0),
+        timeoutMs: Number(timeoutInput.value || 0),
+        enabled: enabledInput.checked
       })
     });
     groupInput.value = "";
@@ -60,6 +66,8 @@ async function createRoute() {
     authTypeInput.value = "";
     apiKeyInput.value = "";
     rateLimitInput.value = "0";
+    timeoutInput.value = "3000";
+    enabledInput.checked = true;
     await load();
   } catch (error) {
     showError(error.message || "保存失败");
@@ -108,19 +116,23 @@ function renderRoutes(routes) {
       <span>${(route.methods || ["ALL"]).join(", ")}</span>
       <span>${route.target}</span>
       <span>${authLabel} · ${rateLabel}</span>
+      <span>${route.enabled === false ? "禁用" : "启用"} · ${route.timeoutMs || 3000}ms</span>
       <span class="actions"></span>
     `;
     const actions = row.querySelector(".actions");
     const test = document.createElement("button");
     test.textContent = "测试";
     test.addEventListener("click", () => prefillTest(route));
+    const toggleEnabled = document.createElement("button");
+    toggleEnabled.textContent = route.enabled === false ? "启用" : "禁用";
+    toggleEnabled.addEventListener("click", () => toggleEnable(route));
     const toggle = document.createElement("button");
     toggle.textContent = "切换 Method";
     toggle.addEventListener("click", () => toggleMethod(route));
     const remove = document.createElement("button");
     remove.textContent = "删除";
     remove.addEventListener("click", () => removeRoute(route));
-    actions.append(test, toggle, remove);
+    actions.append(test, toggleEnabled, toggle, remove);
     routesEl.appendChild(row);
   });
 }
@@ -133,6 +145,33 @@ function showError(message) {
 function clearError() {
   errorEl.textContent = "";
   errorEl.classList.add("hidden");
+}
+
+async function loadMetrics() {
+  try {
+    const metrics = await fetchJson("/admin/routes/metrics");
+    renderMetrics(metrics || []);
+  } catch (error) {
+    metricsEl.textContent = error.message || "无法加载统计";
+  }
+}
+
+function renderMetrics(metrics) {
+  if (!metrics.length) {
+    metricsEl.textContent = "暂无统计数据";
+    return;
+  }
+  metricsEl.innerHTML = "";
+  metrics.forEach((metric) => {
+    const item = document.createElement("div");
+    item.className = "metric-item";
+    item.innerHTML = `
+      <span class="metric-id">${metric.routeId}</span>
+      <span>命中：${metric.hits}</span>
+      <span>最近：${metric.lastHit || "-"}</span>
+    `;
+    metricsEl.appendChild(item);
+  });
 }
 
 async function fetchJson(url, options = {}) {
@@ -179,5 +218,18 @@ async function sendTestRequest() {
     testResultEl.textContent = `Status: ${res.status}\n${text}`;
   } catch (error) {
     testResultEl.textContent = error.message || "请求失败";
+  }
+}
+
+async function toggleEnable(route) {
+  clearError();
+  try {
+    await fetchJson(`/admin/routes/${route.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ enabled: !(route.enabled === false) })
+    });
+    await load();
+  } catch (error) {
+    showError(error.message || "更新失败");
   }
 }
